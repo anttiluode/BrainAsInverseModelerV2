@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Dendritic Lens — BrainAsInverseModelerV2</title>
+  <meta name="description" content="A passive dendritic cable as an inverse instrument: what hidden causes can survive into a soma trace and a history-shaped cable state?">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="hero">
+    <div class="eyebrow">BrainAsInverseModelerV2 · runnable experiment</div>
+    <h1>The dendritic lens</h1>
+    <p class="lead">A restricted signal can carry more of its world through time than it carries in one instant. This demo asks what a passive dendritic cable preserves, what the soma makes observable, and where inversion must fail.</p>
+    <div class="claim-grid">
+      <div><strong id="hero-diverse">—</strong><span>six-input RMSE · diverse cable · no noise</span></div>
+      <div><strong id="hero-state">—</strong><span>hidden-state NRMSE · cable history</span></div>
+      <div><strong id="hero-delay">—</strong><span>hidden-state NRMSE · ordinary delays</span></div>
+    </div>
+    <p class="boundary">The cable is a working history-dependent coordinate system here. It is <em>not</em> better than delay coordinates, and an excellent waveform fit can still imply the wrong hidden causes.</p>
+  </header>
+
+  <main>
+    <section class="lab panel" aria-labelledby="lab-title">
+      <div class="section-head">
+        <div><span class="kicker">Experiment 1</span><h2 id="lab-title">Temporal tomography</h2></div>
+        <p>Six hidden branch amplitudes → one soma voltage trace → truncated-SVD inverse.</p>
+      </div>
+
+      <div class="preset-row" role="group" aria-label="Experiment presets">
+        <button data-preset="readable" class="active">Readable mix</button>
+        <button data-preset="twins">Indistinguishable twins</button>
+        <button data-preset="noise">Noise</button>
+        <button data-preset="mismatch">Wrong calibration</button>
+      </div>
+
+      <div class="lab-grid">
+        <aside class="controls">
+          <label>Architecture
+            <select id="architecture">
+              <option value="diverse">Diverse branches</option>
+              <option value="symmetric">Identical branches</option>
+            </select>
+          </label>
+          <label>Readout
+            <select id="readout-mode">
+              <option value="trace">Full 200 ms soma trace</option>
+              <option value="snapshot">One soma sample at 20 ms</option>
+            </select>
+          </label>
+          <label>Measurement noise
+            <select id="noise-level">
+              <option value="0">0</option>
+              <option value="0.0001">0.01% reference RMS</option>
+              <option value="0.001">0.1% reference RMS</option>
+              <option value="0.01">1% reference RMS</option>
+              <option value="0.05">5% reference RMS</option>
+              <option value="fixed">fixed 0.01 mV</option>
+            </select>
+          </label>
+          <label class="check"><input id="mismatch" type="checkbox"> True cable is 20% slower; inverse stays nominal</label>
+          <div id="sliders" class="sliders"></div>
+        </aside>
+
+        <div class="instrument">
+          <div class="metric-strip">
+            <div><span>retained modes</span><strong id="retained">—</strong></div>
+            <div><span>input RMSE</span><strong id="input-error">—</strong></div>
+            <div><span>measurement residual</span><strong id="measurement-error">—</strong></div>
+            <div><span>σ</span><strong id="sigma">—</strong></div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-title"><strong>Soma observation</strong><span id="trace-label">trace vs reconstruction</span></div>
+            <canvas id="trace-canvas" height="240" aria-label="Observed and reconstructed soma voltage"></canvas>
+          </div>
+
+          <div class="bar-grid">
+            <div class="chart-card"><div class="chart-title"><strong>Hidden vs recovered inputs</strong><span>no positivity prior</span></div><div id="input-bars" class="input-bars"></div></div>
+            <div class="chart-card"><div class="chart-title"><strong>Singular spectrum</strong><span>modes above 3σ retained</span></div><div id="singular-bars" class="singular-bars"></div></div>
+          </div>
+          <p id="interpretation" class="interpretation"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="state-title">
+      <div class="section-head">
+        <div><span class="kicker">Experiment 2</span><h2 id="state-title">The cable as a history coordinate</h2></div>
+        <p>Only noisy Lorenz <em>x</em> enters the observer. Hidden <em>y,z</em> are used only by the held-out evaluation decoder.</p>
+      </div>
+      <div class="comparison" id="comparison"></div>
+      <div class="dynamic-grid">
+        <div class="chart-card"><div class="chart-title"><strong>Hidden y</strong><span>truth vs cable decoder · held-out seed 100</span></div><canvas id="y-canvas" height="220"></canvas></div>
+        <div class="chart-card"><div class="chart-title"><strong>Hidden z</strong><span>truth vs cable decoder · held-out seed 100</span></div><canvas id="z-canvas" height="220"></canvas></div>
+      </div>
+      <div class="finding-grid">
+        <article><span class="kicker">History control</span><h3>Resetting erases the gain</h3><p id="reset-copy"></p></article>
+        <article><span class="kicker">Ambiguity control</span><h3>Same present, different world</h3><p id="same-present-copy"></p></article>
+        <article><span class="kicker">Unrecoverable control</span><h3>No causal trace, no recovery</h3><p id="hidden-copy"></p></article>
+      </div>
+    </section>
+
+    <section class="panel compact">
+      <span class="kicker">Claim boundary</span>
+      <h2>What this does—and does not—show</h2>
+      <p>Different passive branch dynamics can create distinguishable temporal fingerprints, and an ongoing cable state can retain useful information about a hidden dynamical world. Symmetry destroys source identity. A single soma snapshot destroys most source dimensions. A wrong cable can reproduce its accessible waveform while giving the wrong hidden inputs. Ordinary delay coordinates beat this illustrative cable on the Lorenz benchmark, so the result is a mechanism demonstration, not a cable-superiority claim or a biological validation.</p>
+      <p class="receipt">Frozen seeds, settings, source hashes and every measured comparison are in <code>results/receipt.json</code>.</p>
+    </section>
+  </main>
+
+  <footer>BrainAsInverseModelerV2 · passive illustrative circuit · no fitted biological parameters</footer>
+  <script src="data-diverse.js"></script>
+  <script src="data-symmetric.js"></script>
+  <script src="data-mismatch.js"></script>
+  <script src="data-demo.js"></script>
+  <script src="data.js"></script>
+  <script src="core.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
