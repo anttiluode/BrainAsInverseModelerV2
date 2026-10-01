@@ -7,3 +7,5 @@ The new design directly tests dendritic temporal fingerprints, followed by hidde
 Pre-flight: Task 1's Cable.encode and SVD interfaces feed Task 3; Task 2's feature/readout interfaces feed Task 3; Task 3's exported data feed Task 4. Interfaces agree.
 
 Task 1: complete. Twelve physical/inverse tests pass with python -m unittest discover -s tests -v. RED: missing cable/inverse APIs; GREEN: analytic RC response, passivity, conservation, causal history, symmetric ambiguity, and SVD truncation.
+
+Task 2: complete. RED: world/readout modules absent. GREEN: 20/20 full-suite tests pass, including fixed Lorenz RK4, causal delay/filter histories, exact quadratic recovery, constant-feature stability, and frozen training normalization under extreme held-out values.
