@@ -1,0 +1,32 @@
+name: checks
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt
+      - run: python -m unittest discover -s tests -v
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/core.test.cjs
+      - name: Re-run frozen experiment in a temporary output directory
+        env:
+          OPENBLAS_NUM_THREADS: '1'
+        run: |
+          python - <<'PY'
+          import tempfile
+          from pathlib import Path
+          from dendritic_lens.experiment import run_experiment
+          with tempfile.TemporaryDirectory() as tmp:
+              root = Path(tmp)
+              receipt = run_experiment(root/'results', root/'site')
+              assert not receipt['quick']
+              assert receipt['provenance']['observer_inputs'] == ['noisy_x']
+          PY
