@@ -52,7 +52,7 @@
     let observed=matvec(forwardK,amps).map((v,i)=>v+sigma*noiseTemplate[i]);
     let inverseOperator=nominal, reconstruction, displayObserved=observed, displayPredicted;
     if($('readout-mode').value==='snapshot'){
-      const idx=39; reconstruction=reconstruct([nominal.K[idx]],[observed[idx]],sigma); displayObserved=[observed[idx]]; displayPredicted=reconstruction.predicted; $('trace-label').textContent='single 20 ms sample';
+      const idx=Math.round(20/DATA.tomography.demo_sample_dt_ms)-1; reconstruction=reconstruct([nominal.K[idx]],[observed[idx]],sigma); displayObserved=[observed[idx]]; displayPredicted=reconstruction.predicted; $('trace-label').textContent='single 20 ms sample';
     } else { reconstruction=reconstruct(inverseOperator,observed,sigma); displayPredicted=reconstruction.predicted; $('trace-label').textContent='observed vs inverse-projected trace'; }
     $('retained').textContent=`${reconstruction.retainedModes} / 6`; $('input-error').textContent=fmt(rmse(amps,reconstruction.estimate),4); $('measurement-error').textContent=fmt(reconstruction.residualRms/DATA.tomography.noise_reference_rms_mv,4); $('sigma').textContent=`${fmt(sigma,5)} mV`;
     renderBars(amps,reconstruction.estimate); renderSpectrum(reconstruction.singularValues,reconstruction.mask); drawLines($('trace-canvas'),[{values:displayObserved},{values:displayPredicted}]);
