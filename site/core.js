@@ -61,7 +61,9 @@
     }
     const modeCount = Math.min(m, n);
     const order = Array.from({ length: n }, (_, i) => i).sort((a, b) => A[b][b] - A[a][a]).slice(0, modeCount);
-    const S = order.map(i => Math.sqrt(Math.max(0, A[i][i])));
+    const rawS = order.map(i => Math.sqrt(Math.max(0, A[i][i])));
+    const numericFloor = (rawS[0] || 0) * 1e-7;
+    const S = rawS.map(value => value <= numericFloor ? 0 : value);
     const Vt = order.map(i => Array.from({ length: n }, (_, j) => V[j][i]));
     const U = Array.from({ length: m }, () => Array(modeCount).fill(0));
     for (let mode = 0; mode < modeCount; mode++) {
@@ -75,8 +77,12 @@
 
   function reconstruct(operator, observation, sigma) {
     if (!Number.isFinite(sigma) || sigma < 0) throw new Error('sigma must be finite and nonnegative');
-    const cal = operator && !Array.isArray(operator) && operator.K && operator.U && operator.S && operator.Vt
-      ? operator : factorizeMatrix(operator);
+    let cal;
+    if (operator && !Array.isArray(operator) && operator.K) {
+      cal = operator.U && operator.S && operator.Vt ? operator : factorizeMatrix(operator.K);
+    } else {
+      cal = factorizeMatrix(operator);
+    }
     const K = cal.K;
     if (!Array.isArray(observation) || observation.length !== K.length || observation.some(v => !Number.isFinite(v))) {
       throw new Error('observation length must match operator rows and be finite');
