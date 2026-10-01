@@ -8,6 +8,7 @@ from pathlib import Path
 import numpy as np
 
 from dendritic_lens.experiment import run_experiment
+from dendritic_lens.site_export import compact_site
 
 
 class ExperimentTests(unittest.TestCase):
@@ -15,6 +16,7 @@ class ExperimentTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp); out=root/'results'; site=root/'site'
             receipt=run_experiment(out,site,quick=True)
+            compact_site(site)
             self.assertEqual(receipt['provenance']['tomography_seeds'],[0])
             self.assertEqual(receipt['provenance']['observer_inputs'],['noisy_x'])
             self.assertEqual(receipt['tomography']['noise_reference_rms_mv'],receipt['tomography']['architectures']['diverse']['noise_reference_rms_mv'])
@@ -30,7 +32,7 @@ class ExperimentTests(unittest.TestCase):
             data=''.join(bundle)
             self.assertIn('DENDRITIC_LENS_DATA',data)
             self.assertIn('mismatch_true',data)
-            self.assertLess(sum(len(part.encode('utf-8')) for part in bundle),60_000)
+            self.assertLess(sum(len(part.encode('utf-8')) for part in bundle),20_000)
             self.assertTrue(all(len(part.encode('utf-8'))<20_000 for part in bundle))
             self.assertNotIn('observer_y',data)
             self.assertNotIn('observer_z',data)
@@ -48,6 +50,8 @@ class ExperimentTests(unittest.TestCase):
             self.assertIn('wrote',proc.stdout)
             self.assertTrue((tmp/'results'/'receipt.json').exists())
             self.assertTrue((tmp/'site'/'data.js').exists())
+            bundle_names=['data-diverse.js','data-symmetric.js','data-mismatch.js','data-demo.js','data.js']
+            self.assertLess(sum((tmp/'site'/name).stat().st_size for name in bundle_names),20_000)
 
     def test_quick_run_is_deterministic(self):
         with tempfile.TemporaryDirectory() as a, tempfile.TemporaryDirectory() as b:
