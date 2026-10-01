@@ -59,3 +59,15 @@ test('browser reconstruction agrees with exported Python calibration', () => {
   closeVec(out.estimate,truth,2e-6);
   assert.equal(out.retainedModes,6);
 });
+
+test('exported symmetric calibration preserves exactly one source mode', () => {
+  const sandbox={window:{},atob:globalThis.atob};
+  for (const name of ['data-diverse.js','data-symmetric.js','data-mismatch.js','data-demo.js','data.js']) {
+    const raw=fs.readFileSync(path.join(__dirname,'../site',name),'utf8');
+    vm.runInNewContext(raw,sandbox);
+  }
+  const cal=sandbox.window.DENDRITIC_LENS_DATA.calibration.symmetric;
+  const y=cal.K.map(row=>row[0]);
+  const out=reconstruct(cal,y,0);
+  assert.equal(out.retainedModes,1);
+});
