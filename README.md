@@ -40,7 +40,7 @@ A held-out same-present example is also found: two moments differ in current `x`
 
 ## Interactive demo
 
-Open [`site/index.html`](site/index.html) directly in a browser. It has no network dependencies.
+[Open site!](https://anttiluode.github.io/BrainAsInverseModelerV2/site/index.html) directly in a browser. It has no network dependencies.
 
 The demo recomputes the forward soma signal and inverse locally. To keep the self-contained browser payload small, generated calibration/trajectory arrays are stored as Float32; the authoritative full-precision metrics remain in `results/receipt.json`, and the browser fixture is checked to 2e-6 amplitude precision. Try the presets:
 
